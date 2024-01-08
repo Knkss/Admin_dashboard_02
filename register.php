@@ -3,6 +3,8 @@
 
 require("connect.php");
 
+date_default_timezone_set('Asia/Kolkata');
+
 $fname= $_POST['fname'];
 $lname= $_POST['lname'];    
 $email= $_POST['email'];  
@@ -17,6 +19,7 @@ $salt = bin2hex(openssl_random_pseudo_bytes(22));
 $hashed_password = crypt($pass, "$1$4$4$7$".$salt);
 $last_login = date('Y-m-d H:i:s');
 
+$acc_created = date('Y-m-d H:i:s');
 
  
 
@@ -40,7 +43,7 @@ exit;
 // }
 
 else{
-	 try{
+   try{
 $data = [
     'fname' => $fname,
     'lname' => $lname,
@@ -49,7 +52,10 @@ $data = [
     'dob' => $dob,
     'gender' => $gender,
     'pass' => $hashed_password,
-    'last_login' => $last_login
+    'last_login' => $last_login,
+    'acc_created' => $acc_created
+    
+
 ];
     
       
@@ -66,13 +72,13 @@ $stm = $conn->prepare($sqll);
           echo 2;
     } 
  else {
-  $sql = "INSERT INTO adm (first_name, last_name, user_name,address, dob, gender, pass_word,last_login ) VALUES(:fname,:lname, :email, :address, :dob,:gender,:pass,:last_login)";
+  $sql = "INSERT INTO adm (first_name, last_name, user_name,address, dob, gender, pass_word,last_login,acc_created) VALUES(:fname,:lname, :email, :address, :dob,:gender,:pass,:last_login,:acc_created)";
 $stmt= $conn->prepare($sql);
 $stmt->execute($data);
 
   echo 1;
 }
-     	
+      
 } 
 catch(PDOException $e) {
   echo $sql . "<br>" . $e->getMessage();

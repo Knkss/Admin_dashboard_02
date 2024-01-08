@@ -3,6 +3,8 @@ session_start();
 
 require("connect.php");
 
+date_default_timezone_set('Asia/Kolkata');
+
 // ini_set('display_errors', 1);
 // ini_set('display_startup_errors', 1);
 // error_reporting(E_ALL);
@@ -81,6 +83,28 @@ else {
         $_SESSION['kshitij_status'] = $row['status'];
         $_SESSION['kshitij_type'] = $row['type'];
 
+        $lastLogin = date('Y-m-d H:i:s');
+
+            // Update the last_login field
+            $sql = "UPDATE adm SET last_login = :lastLogin WHERE user_name = :email";
+            $stmt = $conn->prepare($sql);
+            $stmt->execute(['lastLogin' => $lastLogin, 'email' => $email]);
+
+            // Check if the user is new
+            $accountCreated = new DateTime($row['acc_created']); // Assuming 'account_created' is the column name
+            $lastLoginDate = new DateTime($lastLogin);
+            $interval = $accountCreated->diff($lastLoginDate);
+            $daysDifference = $interval->days;
+
+            if($daysDifference < 30) {
+                // Update the status to 2 (new user)
+                $sql = "UPDATE adm SET status = 2 WHERE user_name = :email";
+                $stmt = $conn->prepare($sql);
+                $stmt->execute(['email' => $email]);
+
+            }
+
+
         echo "1";
     } 
 
@@ -106,30 +130,8 @@ else {
         
         echo "4";
     }
-    $last_login = date('Y-m-d H:i:s');
-    $sql2 = 'UPDATE last_login SET last_login = :last_login WHERE user_name = :email';
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute();
+    
     echo 2;
-
-
-$lastLogin = date('Y-m-d H:i:s');
-
-// First, get the user status
-$stmt = $pdo->prepare("SELECT status FROM users WHERE user_name = :email");
-$stmt->execute(['email' => $email]);
-$user = $stmt->fetch();
-
-if ($user['status'] == 1) {
-    // If status is 1, insert the current date and time
-    $sql = "INSERT INTO last_login (last_login, user_name) VALUES (:lastLogin, :email)";
-} else {
-    // If status is not 1, update the current date and time
-    $sql = "UPDATE last_login SET last_login = :lastLogin WHERE user_name = :email";
-}
-
-$stmt = $pdo->prepare($sql);
-$stmt->execute(['lastLogin' => $lastLogin, 'email' => $email]);
 
 
     
@@ -139,4 +141,6 @@ $stmt->execute(['lastLogin' => $lastLogin, 'email' => $email]);
 }
 
 }
+
+
 ?>

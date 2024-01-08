@@ -147,6 +147,7 @@
               success: function(response) {
                  if (response==1) {
                     alert("Succesfully inserted");
+                    window.location.href = 'index.php';
                 }
                 else if (response==0) {
                     alert("Backend data not properly send");
